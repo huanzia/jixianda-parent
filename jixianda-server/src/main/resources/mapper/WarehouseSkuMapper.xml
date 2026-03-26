@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jixianda.mapper.WarehouseSkuMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        <!-- 新增仓商品映射，表示某个商品在某个仓有多少库存、是否可售。 -->
+        insert into warehouse_sku(warehouse_id, dish_id, stock, lock_stock, status)
+        values (#{warehouseId}, #{dishId}, #{stock}, #{lockStock}, #{status})
+    </insert>
+
+    <update id="update">
+        <!-- 更新仓商品的库存、锁定库存和状态，通常由库存维护或订单流程触发。 -->
+        update warehouse_sku
+        <set>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="dishId != null">dish_id = #{dishId},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="lockStock != null">lock_stock = #{lockStock},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getById" resultType="com.jixianda.entity.WarehouseSku">
+        <!-- 按主键查询仓商品，常用于库存管理和订单校验。 -->
+        select id,
+               warehouse_id as warehouseId,
+               dish_id as dishId,
+               stock,
+               lock_stock as lockStock,
+               status
+        from warehouse_sku
+        where id = #{id}
+    </select>
+
+    <select id="selectByWarehouseAndDishId" resultType="com.jixianda.entity.WarehouseSku">
+        <!-- 按仓和商品联合查询，保证后续库存判断是基于当前仓维度而不是全局库存。 -->
+        select id,
+               warehouse_id as warehouseId,
+               dish_id as dishId,
+               stock,
+               lock_stock as lockStock,
+               status
+        from warehouse_sku
+        where warehouse_id = #{warehouseId}
+          and dish_id = #{dishId}
+        limit 1
+    </select>
+
+    <update id="deductStock">
+        <!-- 下单或秒杀时预扣库存，同时把 stock 转成 lock_stock，保证该库存已经被当前订单占用。 -->
+        update warehouse_sku
+        set stock = stock - #{count},
+            lock_stock = lock_stock + #{count}
+        where warehouse_id = #{warehouseId}
+          and dish_id = #{dishId}
+          and stock >= #{count}
+    </update>
+
+    <update id="restoreStock">
+        <!-- 订单取消、拒单或超时时回滚库存，把之前锁住的库存重新恢复为可售库存。 -->
+        update warehouse_sku
+        set stock = stock + #{count},
+            lock_stock = lock_stock - #{count}
+        where warehouse_id = #{warehouseId}
+          and dish_id = #{dishId}
+          and lock_stock >= #{count}
+    </update>
+    
+    <update id="releaseLockStock">
+        <!-- 支付成功后只释放锁定库存，不再把数量回补到 stock，因为订单已经正式成交。 -->
+        update warehouse_sku
+        set lock_stock = lock_stock - #{count}
+        where warehouse_id = #{warehouseId}
+          and dish_id = #{dishId}
+          and lock_stock >= #{count}
+    </update>
+
+    <update id="updateStatusById">
+        <!-- 按主键更新仓商品状态，适合后台直接操作单条记录。 -->
+        update warehouse_sku
+        set status = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateStatusByWarehouseAndDish">
+        <!-- 按仓和商品更新状态，适合业务侧按仓维度统一上下架某个商品。 -->
+        update warehouse_sku
+        set status = #{status}
+        where warehouse_id = #{warehouseId}
+          and dish_id = #{dishId}
+    </update>
+
+</mapper>

@@ -1,0 +1,121 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u6781\u9c9c\u8fbe"
+      }
+    },
+    {
+      "path": "pages/cart/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u8d2d\u7269\u8f66",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/order/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u63d0\u4ea4\u8ba2\u5355",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/details/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u8ba2\u5355\u8be6\u60c5",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/pay/index",
+      "style": {
+        "navigationBarTitleText": "\u652f\u4ed8\u8ba2\u5355",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/success/index",
+      "style": {
+        "navigationBarTitleText": "\u63d0\u4ea4\u6210\u529f",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/nonet/index",
+      "style": {
+        "navigationBarTitleText": "\u65e0\u7f51\u7edc"
+      }
+    },
+    {
+      "path": "pages/address/address",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u5730\u5740\u7ba1\u7406",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/remark/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u8ba2\u5355\u5907\u6ce8",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/my/my",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u4e2a\u4eba\u4e2d\u5fc3",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#ffc200"
+      }
+    },
+    {
+      "path": "pages/addOrEditAddress/addOrEditAddress",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u65b0\u589e\u6536\u83b7\u5730\u5740",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    },
+    {
+      "path": "pages/historyOrder/historyOrder",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "\u5386\u53f2\u8ba2\u5355",
+        "enablePullDownRefresh": false,
+        "navigationBarBackgroundColor": "#333333"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "\u6781\u9c9c\u8fbe",
+    "navigationBarBackgroundColor": "#E95F3C",
+    "backgroundColor": "#F8F8F8"
+  },
+  "condition": {
+    "current": 0,
+    "list": [
+      {
+        "name": "\u5386\u53f2\u8ba2\u5355",
+        "path": "pages/historyOrder/historyOrder",
+        "query": ""
+      }
+    ]
+  }
+}

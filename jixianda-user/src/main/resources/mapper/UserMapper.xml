@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jixianda.mapper.UserMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        <!-- 新用户首次登录时插入基础资料，并回填自增主键给 Java 对象。 -->
+        insert into user (openid, name, phone, sex, id_number, avatar, create_time)
+        values (#{openid},#{name},#{phone},#{sex},#{idNumber},#{avatar},#{createTime})
+    </insert>
+
+    <select id="countByMap" resultType="java.lang.Integer">
+        <!-- 按创建时间统计用户数量，用于后台看板或增长分析。 -->
+        select count(id) from user
+        <where>
+            <!-- 起始时间存在时，只统计创建时间不早于 begin 的用户。 -->
+            <if test="begin != null">
+                and create_time &gt;= #{begin}
+            </if>
+            <!-- 结束时间存在时，只统计创建时间不晚于 end 的用户。 -->
+            <if test="end != null">
+                and create_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+</mapper>

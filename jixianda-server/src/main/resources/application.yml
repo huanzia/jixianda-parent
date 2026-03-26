@@ -1,0 +1,74 @@
+server:
+  port: 58088
+
+spring:
+  application:
+    name: jixianda-server
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${jixianda.datasource.driver-class-name}
+      url: jdbc:mysql://${jixianda.datasource.host}:3307/${jixianda.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${jixianda.datasource.username}
+      password: ${jixianda.datasource.password}
+  redis:
+    host: ${jixianda.redis.host}
+    port: 6379
+#    password: ${jixianda.redis.password}
+    database: ${jixianda.redis.database}
+  rabbitmq:
+    host: localhost
+    port: 5672
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.jixianda.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      jixianda:
+        mapper: debug
+        service: info
+        controller: info
+
+jixianda:
+  jwt:
+    admin-secret-key: itcast
+    admin-ttl: 72000000
+    admin-token-name: token
+    user-secret-key: itheima
+    user-ttl: 72000000
+    user-token-name: authentication
+  alioss:
+    access-key-id: ${jixianda.alioss.access-key-id}
+    access-key-secret: ${jixianda.alioss.access-key-secret}
+    bucket-name: ${jixianda.alioss.bucket-name}
+    endpoint: ${jixianda.alioss.endpoint}
+  redis:
+    host: ${jixianda.data.redis.host}
+    port: 6379
+    database: ${jixianda.data.redis.database}
+    password: ${jixianda.data.redis.password}
+  wechat:
+    appid: ${jixianda.wechat.appid}
+    secret: ${jixianda.wechat.secret}
+    mchid: ${jixianda.wechat.mchid}
+    mchSerialNo: ${jixianda.wechat.mchSerialNo}
+    privateKeyFilePath: ${jixianda.wechat.privateKeyFilePath}
+    apiV3Key: ${jixianda.wechat.apiV3Key}
+    weChatPayCertFilePath: ${jixianda.wechat.weChatPayCertFilePath}
+    notifyUrl: ${jixianda.wechat.notifyUrl}
+    refundNotifyUrl: ${jixianda.wechat.refundNotifyUrl}

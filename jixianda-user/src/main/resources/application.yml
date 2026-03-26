@@ -1,0 +1,73 @@
+server:
+  # 用户服务对外提供接口的端口，gateway 会通过服务名转发到这里。
+  port: 58081
+
+spring:
+  # 服务名会注册到 Nacos，供 gateway 和其他服务通过 lb://jixianda-user 访问。
+  application:
+    name: jixianda-user
+  profiles:
+    # 开发环境默认启用 dev 配置，方便本地联调和开发登录使用。
+    active: dev
+  mvc:
+    pathmatch:
+      # 使用 ant 风格匹配，保证 controller 路径和网关路由里的通配符行为一致。
+      matching-strategy: ant_path_matcher
+  cloud:
+    # 从 Nacos 获取服务发现信息，让 gateway 能按服务名找到当前 user 服务实例。
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    # Seata 事务组配置，保证用户服务的分布式事务能接入统一事务协调器。
+    alibaba:
+      seata:
+        tx-service-group: jixianda_tx_group
+  datasource:
+    druid:
+      # MySQL 驱动类名，告诉连接池如何加载数据库驱动。
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      # user 服务使用的业务数据库地址，所有用户、地址簿和仓库数据都从这里读取。
+      url: jdbc:mysql://localhost:3307/jixianda?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      # 数据库账号。
+      username: root
+      # 数据库密码。
+      password: root
+
+mybatis:
+  # Mapper XML 的扫描位置，确保 SQL 映射文件可以被 MyBatis 读取到。
+  mapper-locations: classpath:mapper/**/*.xml
+  # 实体别名包，减少 XML 里写全限定类名的成本。
+  type-aliases-package: com.jixianda.entity
+  configuration:
+    # 开启下划线到驼峰映射，方便数据库字段和 Java 属性自动对应。
+    map-underscore-to-camel-case: true
+
+jixianda:
+  # JWT 相关配置，user 服务负责签发用户 token，并让 gateway 按相同密钥校验。
+  jwt:
+    # 用户端 token 的签名密钥，必须与 gateway 读取的密钥保持一致。
+    user-secret-key: itheima
+    # token 有效期，控制用户登录态持续时间。
+    user-ttl: 72000000
+    # 用户 token 放在请求头中的名字，网关会按这个字段读取。
+    user-token-name: authentication
+  # 微信登录所需的 appid 和 secret，user 服务通过它们换取微信侧身份信息。
+  wechat:
+    appid: wxa31c7c4b8adc94f8
+    secret: 6aa7795dbca47b10650731e487f65cb6
+
+  # Seata 全局配置，控制 user 服务如何参与分布式事务。
+seata:
+  # 开启 Seata 后，涉及多服务一致性的操作会由事务协调器管理。
+  enabled: true
+  # 事务组名，需要与 Nacos / Seata 配置保持一致。
+  tx-service-group: jixianda_tx_group
+  # 使用 AT 模式代理数据源，适合大多数业务型事务场景。
+  data-source-proxy-mode: AT
+  service:
+    # 事务组到 Seata server 集群名称的映射。
+    vgroup-mapping:
+      jixianda_tx_group: default
+    # Seata server 地址，user 服务通过这里找到事务协调器。
+    grouplist:
+      default: 127.0.0.1:8091
