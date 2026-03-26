@@ -65,3 +65,10 @@ lerna-debug.log*
 
 project-rjwm-weixin-uniapp-develop-wsy/project.private.config.json
 project-sky-admin-vue-ts/report.*.json
+ik.zip
+package-lock.json
+test_order.py
+test_search.py
+project-rjwm-weixin-uniapp-develop-wsy/project.private.config.json
+project-sky-admin-vue-ts/.env*
+*.log
