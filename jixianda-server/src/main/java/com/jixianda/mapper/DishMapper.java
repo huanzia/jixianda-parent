@@ -1,0 +1,108 @@
+package com.jixianda.mapper;
+
+import com.github.pagehelper.Page;
+import com.jixianda.annotation.AutoFill;
+import com.jixianda.dto.DishPageQueryDTO;
+import com.jixianda.entity.Dish;
+import com.jixianda.enumeration.OperationType;
+import com.jixianda.vo.DishVO;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+
+import java.util.List;
+import java.util.Map;
+
+@Mapper
+public interface DishMapper {
+
+    /**
+     * 根据分类id查询菜品数量
+     * @param categoryId
+     * @return
+     */
+    @Select("select count(id) from dish where category_id = #{categoryId}")
+    Integer countByCategoryId(Long categoryId);
+
+    /**
+     * 新增加菜品
+     * @param dishDTO
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void insert(Dish dishDTO);
+
+    /**
+     * 菜品分页查询
+     * @param dishPageQueryDTO
+     * @return
+     */
+    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    /**
+     * 根据id查询菜品
+     * @param id
+     * @return
+     */
+    @Select("select * from dish where id = #{id}")
+    Dish getById(Long id);
+
+    /**
+     * 根据主检进行菜品删除
+     * @param id
+     */
+    @Delete("delete from dish where id = #{id}")
+    void deleteById(Long id);
+
+    /**
+     * 根据主键集合批量删除
+     * @param ids
+     */
+    void deleteByIds(List<Long> ids);
+
+    /**
+     * 更新菜品信息
+     * 根据id动态修改菜品
+     * @param dish
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Dish dish);
+
+//    /**
+//     * 根据分类id（category_id）查询菜品
+//     * @param categoryId
+//     * @return
+//     */
+//    List<Dish> list(Integer categoryId);
+    /**
+     * 动态条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
+
+    List<Dish> listByCategoryAndWarehouse(@Param("categoryId") Long categoryId,
+                                          @Param("warehouseId") Long warehouseId);
+
+    /**
+     * 根据套餐id查询菜品
+     * @param setmealId
+     * @return
+     */
+    @Select("select a.* from dish a left join setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{setmealId}")
+    List<Dish> getBySetmealId(Long setmealId);
+
+    /**
+     * 根据条件统计菜品数量
+     * @param map
+     * @return
+     */
+    Integer countByMap(Map map);
+
+    @Update("UPDATE dish SET stock = stock - #{number} WHERE id = #{id} AND stock >= #{number}")
+    int updateStock(@Param("id") Long id, @Param("number") Integer number);
+
+    @Update("UPDATE dish SET stock = stock + #{number} WHERE id = #{id}")
+    void addStock(@Param("id") Long dishId, @Param("number") Integer number);
+}

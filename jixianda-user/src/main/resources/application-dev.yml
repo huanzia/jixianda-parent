@@ -1,0 +1,22 @@
+spring:
+  cloud:
+    alibaba:
+      # 开发环境下使用同一事务组，保证本地调试时和主配置保持一致。
+      seata:
+        tx-service-group: jixianda_tx_group
+
+  # 开发环境下的 Seata 配置，和主配置配合使用，覆盖本地联调场景所需的事务参数。
+seata:
+  # 开启分布式事务，方便调试涉及多个表或多个服务的链路。
+  enabled: true
+  # 事务组名不变，保证 dev 环境和主配置能对接同一个事务协调关系。
+  tx-service-group: jixianda_tx_group
+  # AT 模式适合当前业务的数据库事务代理方式。
+  data-source-proxy-mode: AT
+  service:
+    # 将事务组映射到默认 Seata server 集群。
+    vgroup-mapping:
+      jixianda_tx_group: default
+    # 本地开发时连接的 Seata server 地址。
+    grouplist:
+      default: 127.0.0.1:8091

@@ -1,0 +1,48 @@
+server:
+  port: 58080
+
+spring:
+  application:
+    name: jixianda-user
+  profiles:
+    active: dev
+  config:
+    import: optional:classpath:application-private.yml
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${jixianda.datasource.driver-class-name}
+      url: jdbc:mysql://${jixianda.datasource.host}:3307/${jixianda.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${jixianda.datasource.username}
+      password: ${jixianda.datasource.password}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.jixianda.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      jixianda:
+        mapper: debug
+        service: info
+        controller: info
+
+jixianda:
+  jwt:
+    user-secret-key: CHANGE_ME_USER_JWT_SECRET
+    user-ttl: 72000000
+    user-token-name: authentication
+  wechat:
+    appid: ${jixianda.wechat.appid}
+    secret: ${jixianda.wechat.secret}

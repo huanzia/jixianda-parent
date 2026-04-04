@@ -1,0 +1,12 @@
+jixianda:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    database: jixianda_user
+    username: root
+    password: change_me_database_password
+  jwt:
+    user-secret-key: change_me_user_jwt_secret
+  wechat:
+    appid: change_me_wechat_appid
+    secret: change_me_wechat_secret

@@ -1,0 +1,63 @@
+/* Variables */
+
+// Brand
+$mine: #07c160;
+$blue: #3b82f6;
+$green: #10b981;
+$pink: #ef4444;
+$block: #111827;
+$white: #ffffff;
+
+// Neutral
+$gray-1: #111827;
+$gray-2: #6b7280;
+$gray-3: #9ca3af;
+$gray-4: #d1d5db;
+$gray-5: #f3f4f6;
+$gray-6: #e5e7eb;
+$bgColor: #f5f7fb;
+
+// Sidebar
+$sideBarWidth: 210px;
+$subMenuBg: #16212b;
+$subMenuHover: #253443;
+$subMenuActiveText: #ffffff;
+$menuBg: #1f2d3d;
+$menuText: #c7d2de;
+$menuActiveText: $mine;
+
+// Login page
+$lightGray: #1f2937;
+$darkGray: #9ca3af;
+$loginCursorColor: #1f2937;
+
+:export {
+  menuBg: $menuBg;
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+}
+
+.avatar-uploader .el-upload {
+  border-radius: 8px !important;
+  background: #ffffff;
+}
+
+.avatar-uploader .avatar-uploader-icon {
+  background: #ffffff;
+}
+
+.avatar-uploader .el-icon-plus:before {
+  content: '上传图片' !important;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.el-dialog {
+  border-radius: 10px;
+}
+
+.el-dialog__header {
+  background: #f9fafb;
+  border-radius: 10px 10px 0 0;
+  border: none;
+}

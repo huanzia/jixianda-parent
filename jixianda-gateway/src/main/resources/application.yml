@@ -1,0 +1,82 @@
+server:
+  # 网关对外暴露的监听端口，所有外部请求都从这里进入。
+  port: 81
+
+spring:
+  config:
+    import: optional:classpath:application-private.yml
+  # Spring 应用名称，同时也是 Nacos 注册发现时识别网关实例的名字。
+  application:
+    name: jixianda-gateway
+  cloud:
+    # 从 Nacos 拉取服务注册信息，网关通过服务名做负载均衡转发。
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    # Sentinel 负责网关层限流与熔断，dashboard 用于在控制台观察规则和实时流量。
+    sentinel:
+      transport:
+        dashboard: 127.0.0.1:8850
+      # 开启 Sentinel 对 Spring Cloud Gateway 的支持，让网关路由流量可被统一治理。
+      scg:
+        enabled: true
+    # Gateway 负责统一入口、路由转发和跨域处理，下面的配置定义了请求如何转发到各服务。
+    gateway:
+      globalcors:
+        # 允许简单请求也走网关的跨域配置，避免前端直接访问接口时出现跨域问题。
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            # 允许任意来源调用网关，便于前端在不同环境下访问。
+            allowedOriginPatterns:
+              - "*"
+            # 允许常见 HTTP 方法通过网关跨域访问。
+            allowedMethods:
+              - "*"
+            # 允许前端携带常用请求头，以及鉴权所需的 authentication/token。
+            allowedHeaders:
+              - "*"
+              - authentication
+              - token
+            # 允许携带 cookie 等凭据，适配需要登录态的接口调用。
+            allowCredentials: true
+      routes:
+        # 用户相关接口转发到 user 服务，包含用户主数据、地址簿和仓库相关请求。
+        - id: jixianda-user-route
+          uri: lb://jixianda-user
+          predicates:
+            - Path=/user/user/**,/user/addressBook/**,/user/warehouse/**
+        # 管理端和业务核心接口转发到 server 服务，这里覆盖 admin 和部分 user 业务路径。
+        - id: jixianda-server-route
+          uri: lb://jixianda-server
+          predicates:
+            - Path=/admin/**,/user/**
+        # Swagger UI 页面和静态资源从 server 服务获取，保证文档页面可以通过网关直接打开。
+        - id: jixianda-doc-route
+          uri: lb://jixianda-server
+          predicates:
+            - Path=/doc.html,/webjars/**,/favicon.ico
+        # server 服务的接口文档单独挂到 /server-docs 前缀下，再通过 StripPrefix 去掉前缀后转发。
+        - id: server-docs-route
+          uri: lb://jixianda-server
+          predicates:
+            - Path=/server-docs/**
+          filters:
+            - StripPrefix=1
+        # user 服务的接口文档单独挂到 /user-docs 前缀下，便于 Swagger 聚合时分别读取两个服务。
+        - id: user-docs-route
+          uri: lb://jixianda-user
+          predicates:
+            - Path=/user-docs/**
+          filters:
+            - StripPrefix=1
+
+jixianda:
+  # 项目统一使用的 JWT 配置，网关在这里拿到 token 名称和签名密钥。
+  jwt:
+    # 管理端 token 的签名密钥和请求头名称。
+    admin-secret-key: CHANGE_ME_ADMIN_JWT_SECRET
+    admin-token-name: token
+    # 用户端 token 的签名密钥和请求头名称，网关鉴权会使用这组配置。
+    user-secret-key: CHANGE_ME_USER_JWT_SECRET
+    user-token-name: authentication

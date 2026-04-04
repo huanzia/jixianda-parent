@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jixianda.mapper.OrderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        <!-- 订单主表保存订单级别信息，比如金额、收货地址、仓库、支付状态和履约状态。 -->
+        insert into orders (number, status, user_id, address_book_id, warehouse_id, order_time, checkout_time,
+                            pay_method, pay_status, amount, remark, phone, address, user_name, consignee,
+                            cancel_reason, rejection_reason, cancel_time, estimated_delivery_time,
+                            delivery_status, delivery_time, pack_amount, tableware_number, tableware_status)
+        values (#{number}, #{status}, #{userId}, #{addressBookId}, #{warehouseId}, #{orderTime}, #{checkoutTime},
+                #{payMethod},#{payStatus},#{amount},#{remark},#{phone},#{address},#{userName},#{consignee},
+                #{cancelReason},#{rejectionReason},#{cancelTime},#{estimatedDeliveryTime},
+                #{deliveryStatus},#{deliveryTime},#{packAmount},#{tablewareNumber},#{tablewareStatus})
+    </insert>
+    <update id="update" parameterType="com.jixianda.entity.Orders">
+        <!-- 订单更新只改变发生变化的字段，避免把不相关的历史信息覆盖掉。 -->
+        update orders
+        <set>
+            <if test="cancelReason != null and cancelReason!='' ">
+                cancel_reason=#{cancelReason},
+            </if>
+            <if test="rejectionReason != null and rejectionReason!='' ">
+                rejection_reason=#{rejectionReason},
+            </if>
+            <if test="cancelTime != null">
+                cancel_time=#{cancelTime},
+            </if>
+            <if test="payStatus != null">
+                pay_status=#{payStatus},
+            </if>
+            <if test="payMethod != null">
+                pay_method=#{payMethod},
+            </if>
+            <if test="checkoutTime != null">
+                checkout_time=#{checkoutTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="deliveryTime != null">
+                delivery_time = #{deliveryTime}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateStatusByNumberAndStatus">
+        <!-- 支付回调场景用这个语句做状态流转，必须同时满足原状态，防止并发重复更新。 -->
+        update orders
+        set status = #{toStatus},
+            pay_status = #{payStatus},
+            checkout_time = #{checkoutTime}
+        where number = #{number}
+          and status = #{fromStatus}
+    </update>
+
+    <select id="pageQuery" resultType="Orders">
+        <!-- 订单分页列表，支持按订单号、手机号、用户、仓库和状态筛选。 -->
+        select * from orders
+        <where>
+            <if test="number != null and number!=''">
+                and number like concat('%',#{number},'%')
+            </if>
+            <if test="phone != null and phone!=''">
+                and phone like concat('%',#{phone},'%')
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="warehouseId != null">
+                and warehouse_id = #{warehouseId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by order_time desc
+    </select>
+    <select id="sumByMap" resultType="java.lang.Double">
+        <!-- 按条件统计订单金额总和，用于营业额类看板。 -->
+        select sum(amount) from orders
+        <where>
+            <if test="begin != null">
+                and order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt;= #{end}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        <!-- 按条件统计订单数量，用于统计看板和筛选条件汇总。 -->
+        select count(id) from orders
+        <where>
+            <if test="begin != null">
+                and order_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and order_time &lt;= #{end}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="sumCompletedByDeliveryTime" resultType="java.lang.Double">
+        <!-- 营业额统计按订单完成时间口径计算，避免跨天订单因下单时间较早而漏算。 -->
+        select sum(amount) from orders
+        <where>
+            and status = 5
+            <if test="begin != null">
+                and delivery_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and delivery_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+    <select id="countCompletedByDeliveryTime" resultType="java.lang.Integer">
+        <!-- 已完成订单数量也按完成时间口径统计，和营业额保持一致。 -->
+        select count(id) from orders
+        <where>
+            and status = 5
+            <if test="begin != null">
+                and delivery_time &gt;= #{begin}
+            </if>
+            <if test="end != null">
+                and delivery_time &lt;= #{end}
+            </if>
+        </where>
+    </select>
+    <select id="getSalesTop" resultType="com.jixianda.dto.GoodsSalesDTO">
+        <!-- 统计销售排行，通过订单明细聚合出商品销量，用于运营分析。 -->
+        select od.name,sum(od.number) number
+        from order_detail od,orders o
+        where od.order_id = o.id
+        <if test="begin != null">
+            and o.order_time &gt;= #{begin}
+        </if>
+        <if test="end != null">
+            and o.order_time &lt;= #{end}
+        </if>
+        group by od.name
+        order by sum(od.number) desc
+        limit 0,10
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jixianda.mapper.ShoppingCartMapper">
+
+    <select id="list" resultType="com.jixianda.entity.ShoppingCart">
+        <!-- 购物车查询按用户、商品、规格和仓库拼条件，目的是精确命中同一笔购物车项并做数量聚合。 -->
+        select *
+        from shopping_cart
+        <where>
+            <!-- 用户维度必须先限定，否则会查到别人的购物车。 -->
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <!-- 菜品购物车按 dish_id 匹配，套餐购物车按 setmeal_id 匹配。 -->
+            <if test="dishId != null">
+                and dish_id = #{dishId}
+            </if>
+            <if test="setmealId != null">
+                and setmeal_id = #{setmealId}
+            </if>
+            <!-- 口味也是聚合条件之一，否则同商品不同口味会被错误合并。 -->
+            <if test="dishFlavor != null and dishFlavor != ''">
+                and dish_flavor = #{dishFlavor}
+            </if>
+            <!-- 仓库维度必须参与判断，避免不同仓的商品被加到同一个购物车项里。 -->
+            <if test="warehouseId != null">
+                and warehouse_id = #{warehouseId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertBatch" parameterType="list">
+        <!-- 再来一单时批量把历史订单明细转回购物车，供用户快速复购。 -->
+        insert into shopping_cart
+        (name, image, user_id, dish_id, setmeal_id, dish_flavor, number, amount, create_time, warehouse_id)
+        values
+        <foreach collection="shoppingCartList" item="sc" separator=",">
+            (#{sc.name}, #{sc.image}, #{sc.userId}, #{sc.dishId}, #{sc.setmealId}, #{sc.dishFlavor}, #{sc.number}, #{sc.amount}, #{sc.createTime}, #{sc.warehouseId})
+        </foreach>
+    </insert>
+
+</mapper>

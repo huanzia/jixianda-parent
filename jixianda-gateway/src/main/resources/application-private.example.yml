@@ -1,0 +1,4 @@
+jixianda:
+  jwt:
+    admin-secret-key: change_me_admin_jwt_secret
+    user-secret-key: change_me_user_jwt_secret

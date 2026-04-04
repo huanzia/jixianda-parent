@@ -1,0 +1,23 @@
+jixianda:
+  datasource:
+    password: change_me_database_password
+  jwt:
+    admin-secret-key: change_me_admin_jwt_secret
+    user-secret-key: change_me_user_jwt_secret
+  alioss:
+    bucket-name: change_me_bucket_name
+    access-key-id: change_me_access_key_id
+    access-key-secret: change_me_access_key_secret
+    endpoint: oss-cn-beijing.aliyuncs.com
+  redis:
+    password: change_me_redis_password
+  wechat:
+    appid: change_me_wechat_appid
+    secret: change_me_wechat_secret
+    mchid: change_me_wechat_mchid
+    mch-serial-no: change_me_wechat_mch_serial_no
+    api-v3-key: change_me_wechat_api_v3_key
+    private-key-file-path: /path/to/wechat/apiclient_key.pem
+    we-chat-pay-cert-file-path: /path/to/wechat/platform_cert.pem
+    notify-url: https://your-domain.example.com/notify/paySuccess
+    refund-notify-url: https://your-domain.example.com/notify/refundSuccess

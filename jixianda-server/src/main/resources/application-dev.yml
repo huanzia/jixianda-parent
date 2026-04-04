@@ -1,0 +1,46 @@
+jixianda:
+  mock-pay: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    host: localhost
+    port: 3307
+    database: jixianda
+    username: root
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+  es:
+    sync-on-startup: true
+
+spring:
+  config:
+    import: optional:classpath:application-dev-private.yml
+  application:
+    name: jixianda-server
+  elasticsearch:
+    rest:
+      uris: http://127.0.0.1:9200
+  cloud:
+    alibaba:
+      seata:
+        tx-service-group: jixianda_tx_group
+      sentinel:
+        transport:
+          dashboard: 127.0.0.1:8858
+          port: 8719
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: public
+        group: DEFAULT_GROUP
+
+seata:
+  enabled: true
+  tx-service-group: jixianda_tx_group
+  data-source-proxy-mode: AT
+  service:
+    vgroup-mapping:
+      jixianda_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091
